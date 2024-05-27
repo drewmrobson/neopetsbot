@@ -9,10 +9,11 @@ IF EXIST neopetsbot (
 cd C:\Source\neopetsbot
 
 choco install python312 -y
+pip install playwright
+pip install pytest
 pip install pytest-playwright
-playwright install
 pip install pytest-playwright playwright -U
-pytest -rP --headed -s
+python -m pytest -rP --headed -s > "C:/Source/log.txt"
 
 cd C:/Source
 rmdir /s /q neopetsbot
