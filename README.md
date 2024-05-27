@@ -5,3 +5,5 @@
 3. playwright install
 4. pip install pytest-playwright playwright -U
 5. pytest --headed
+
+pytest --headed -s -rP > "C:/Source/log.txt"
