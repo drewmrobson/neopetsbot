@@ -34,6 +34,7 @@ def test_run_bot(page: Page):
 
       # Go to Post Office
       print('Go to Stamp shop page')
+      page.wait_for_timeout(2000)
       page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58")
 
       for row in stamps:
