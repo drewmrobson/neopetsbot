@@ -55,9 +55,10 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     page.locator("#confirm-link").click()
     page.locator('[name="current_offer"]').fill(f'{price}')
     
-    page.wait_for_timeout(500)
-
     print('Finding CAPTCHA region')
+    # Definately have to wait some time for the image to load
+    page.wait_for_timeout(1000)
+    i = page.wait_for_selector('input[type="image"]')
     img = page.locator('input[type="image"]')
     img.screenshot(path="screenshot.png")
     box = img.bounding_box()
@@ -78,23 +79,15 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     x = box["x"] + darkestx - 5
     y = box["y"] + darkesty - 5
 
-    print('Region found; making haggle')
+    print(f'Region found; making haggle at {x}, {y}')
     page.mouse.click(x, y)
 
-    a = page.locator(':has-text("Haggle for")')
-    print('Found haggle text')
-
     # Wait for purchase to be complete before proceeding
-    page.wait_for_selector(':has-text("Haggle for")')
+    element_handle = page.wait_for_selector(':has-text("I accept your offer")')
 
-    # success = page.locator(':has-text("I accept your offer")').is_visible()
-    # failure = page.locator(':has-text("I wont take")').is_visible()
-
-    # if(success is True):
-    #   return True
-
-    # if(failure is True):
-    #   return False
+    # print(f'Found haggle text {element_handle.text_content}')
+    
+    # page.wait_for_timeout(5000)
 
     return True
   else:
