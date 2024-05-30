@@ -81,6 +81,21 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     print('Region found; making haggle')
     page.mouse.click(x, y)
 
+    a = page.locator(':has-text("Haggle for")')
+    print('Found haggle text')
+
+    # Wait for purchase to be complete before proceeding
+    page.wait_for_selector(':has-text("Haggle for")')
+
+    # success = page.locator(':has-text("I accept your offer")').is_visible()
+    # failure = page.locator(':has-text("I wont take")').is_visible()
+
+    # if(success is True):
+    #   return True
+
+    # if(failure is True):
+    #   return False
+
     return True
   else:
     print('Stamp not found')
