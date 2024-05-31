@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 from PIL import Image
 import csv
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 def test_run_bot(page: Page):
   print('Starting botbot')
@@ -35,11 +36,18 @@ def test_run_bot(page: Page):
       # Go to Post Office
       print('Go to Stamp shop page')
 
-      # Change this value to set the wait time before shop refresh
-      # In milliseconds i.e. 1000 is 1 second
-      shop_wait_time = 1000
-      page.wait_for_timeout(shop_wait_time)
-      page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58")
+      goto_shop = True
+      while(goto_shop is True):
+        try:
+          # Change this value to set the wait time before shop refresh
+          # In milliseconds i.e. 1000 is 1 second
+          shop_wait_time = 1000
+          page.wait_for_timeout(shop_wait_time)
+          page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=5000)
+          goto_shop = False
+        except PlaywrightTimeoutError:
+          print('Timeout error')
+          goto_shop = True
 
       for row in stamps:
         find_stamp(page, row[0], row[1])   
