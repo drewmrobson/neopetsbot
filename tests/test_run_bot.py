@@ -34,7 +34,11 @@ def test_run_bot(page: Page):
 
       # Go to Post Office
       print('Go to Stamp shop page')
-      page.wait_for_timeout(2000)
+
+      # Change this value to set the wait time before shop refresh
+      # In milliseconds i.e. 1000 is 1 second
+      shop_wait_time = 1000
+      page.wait_for_timeout(shop_wait_time)
       page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58")
 
       for row in stamps:
