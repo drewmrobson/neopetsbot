@@ -95,11 +95,11 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     page.mouse.click(x, y)
 
     # Wait for purchase to be complete before proceeding
-    element_handle = page.wait_for_selector(':has-text("I accept your offer")')
+    # element_handle = page.wait_for_selector(':has-text("I accept your offer")')
 
     # print(f'Found haggle text {element_handle.text_content}')
     
-    # page.wait_for_timeout(5000)
+    page.wait_for_timeout(5000)
 
     return True
   else:
