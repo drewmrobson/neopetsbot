@@ -23,3 +23,5 @@ See [botbot.bat](./botbot.bat) for a Windows batch script that can be used for a
 To run locally:
 
 `python -m pytest -rP --headed -s > "C:/Source/log.txt"`
+
+`PWDEBUG=1 pytest -s --headed`

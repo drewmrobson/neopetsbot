@@ -2,6 +2,7 @@ from playwright.sync_api import Page
 from PIL import Image
 import csv
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import expect
 
 def test_run_bot(page: Page):
   print('Starting botbot')
@@ -66,13 +67,19 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     page.locator(f'[data-name="{stamp}"]').click()
     page.locator("#confirm-link").click()
     page.locator('[name="current_offer"]').fill(f'{price}')
-    
+
     print('Finding CAPTCHA region')
-    # Definately have to wait some time for the image to load
-    page.wait_for_timeout(1000)
-    i = page.wait_for_selector('input[type="image"]')
+
+    page.wait_for_function('() => document.querySelector(\'input[type="image"]\').width > 100')
     img = page.locator('input[type="image"]')
     img.screenshot(path="screenshot.png")
+    
+
+    # # Definately have to wait some time for the image to load
+    # page.wait_for_timeout(1000)
+    # i = page.wait_for_selector('input[type="image"]')
+    # img = page.locator('input[type="image"]')
+    # img.screenshot(path="screenshot.png")
     box = img.bounding_box()
 
     captcha_img = Image.open("screenshot.png")
@@ -95,9 +102,9 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     page.mouse.click(x, y)
 
     # Wait for purchase to be complete before proceeding
-    # element_handle = page.wait_for_selector(':has-text("I accept your offer")')
+    element_handle = page.wait_for_selector(':has-text("I accept your offer")')
 
-    # print(f'Found haggle text {element_handle.text_content}')
+    print(f'Found haggle text {element_handle.text_content}')
     
     page.wait_for_timeout(5000)
 
