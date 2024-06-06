@@ -43,8 +43,9 @@ def test_run_bot(page: Page):
           # Change this value to set the wait time before shop refresh
           # In milliseconds i.e. 1000 is 1 second
           shop_wait_time = 1000
+          shop_timeout_time = 5000
           page.wait_for_timeout(shop_wait_time)
-          page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=5000)
+          page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=shop_timeout_time)
           goto_shop = False
         except PlaywrightTimeoutError:
           print('Timeout error')
@@ -66,6 +67,12 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
 
     page.locator(f'[data-name="{stamp}"]').click()
     page.locator("#confirm-link").click()
+
+    # Handle stamp has been bought already
+    sold_out = page.locator(':has-text("SOLD OUT")').is_visible()
+    if(sold_out):
+      print('Stamp is sold out')
+      return False
 
     try:
       page.locator('[name="current_offer"]', timeout=1000)
