@@ -43,7 +43,7 @@ def test_run_bot(page: Page):
           # Change this value to set the wait time before shop refresh
           # In milliseconds i.e. 1000 is 1 second
           shop_wait_time = 1000
-          shop_timeout_time = 5000
+          shop_timeout_time = 2000
           page.wait_for_timeout(shop_wait_time)
           page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=shop_timeout_time)
           goto_shop = False
@@ -118,7 +118,10 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
 
     print(f'Found haggle text {element_handle.text_content}')
   
-    page.wait_for_timeout(2000)
+    # Wait for any haggle operation to complete
+    # before going back to stamp shop
+    wait_for_haggle = 2000
+    page.wait_for_timeout(wait_for_haggle)
     return True
   else:
     print('Stamp not found')
