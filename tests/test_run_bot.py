@@ -65,7 +65,10 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
 
     print(f'Found {stamp} at {price}')
 
+    # Click on target stamp
     page.locator(f'[data-name="{stamp}"]').click()
+
+    # Click on pop-up confirm
     page.locator("#confirm-link").click()
 
     # Handle stamp has been bought already
@@ -74,12 +77,19 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
       print('Stamp is sold out')
       return False
 
-    try:
-      page.locator('[name="current_offer"]', timeout=1000)
-    except PlaywrightTimeoutError:
+    current_offer_available = page.locator('[name="current_offer"]').is_visible()
+    if(current_offer_available is False):
+      print('Current offer input is NOT available')
       return False
 
-    page.locator('[name="current_offer"]').fill(f'{price}')
+    print('Current offer input is available')
+
+    # try:
+    #   page.locator('[name="current_offer"]', timeout=1000)
+    # except PlaywrightTimeoutError:
+    #   return False
+
+    page.locator('[name="current_offer"]').fill(f'{price}', timeout=1000)
 
     print('Finding CAPTCHA region')
 
