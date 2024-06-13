@@ -123,11 +123,10 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     print(f'Region found; making haggle at {x}, {y}')
     page.mouse.click(x, y)
 
-    # Wait for purchase to be complete before proceeding
-    element_handle = page.wait_for_selector(':has-text("I accept your offer")')
-
-    print(f'Found haggle text {element_handle.text_content}')
-  
+    if(page.locator(':has-text("I accept your offer")').is_visible() is False):
+      print('Just missed it!')
+      return False
+    
     # Wait for any haggle operation to complete
     # before going back to stamp shop
     wait_for_haggle = 2000
