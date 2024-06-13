@@ -42,7 +42,7 @@ def test_run_bot(page: Page):
         try:
           # Change this value to set the wait time before shop refresh
           # In milliseconds i.e. 1000 is 1 second
-          shop_wait_time = 1000
+          shop_wait_time = 500
           shop_timeout_time = 2000
           page.wait_for_timeout(shop_wait_time)
           page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=shop_timeout_time)
