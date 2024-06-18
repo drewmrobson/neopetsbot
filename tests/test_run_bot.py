@@ -48,7 +48,7 @@ def test_run_bot(page: Page):
           page.goto("https://www.neopets.com/objects.phtml?type=shop&obj_type=58", timeout=shop_timeout_time)
           goto_shop = False
         except PlaywrightTimeoutError:
-          print('Timeout error')
+          print('Timeout error while loading shop')
           goto_shop = True
 
       for row in stamps:
@@ -71,67 +71,77 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     # Click on pop-up confirm
     page.locator("#confirm-link").click()
 
-    # Handle stamp has been bought already
-    sold_out = page.locator(':has-text("SOLD OUT")').is_visible()
-    if(sold_out):
-      print('Stamp is sold out')
-      return False
-
-    current_offer_available = page.locator('[name="current_offer"]').is_visible()
-    if(current_offer_available is False):
-      print('Current offer input is NOT available')
-      return False
-
-    print('Current offer input is available')
-
-    # try:
-    #   page.locator('[name="current_offer"]', timeout=1000)
-    # except PlaywrightTimeoutError:
-    #   return False
-
-    page.locator('[name="current_offer"]').fill(f'{price}', timeout=1000)
-
-    print('Finding CAPTCHA region')
-
-    page.wait_for_function('() => document.querySelector(\'input[type="image"]\').width > 100')
-    img = page.locator('input[type="image"]')
-    img.screenshot(path="screenshot.png")
-    
-    # # Definately have to wait some time for the image to load
-    # page.wait_for_timeout(1000)
-    # i = page.wait_for_selector('input[type="image"]')
-    # img = page.locator('input[type="image"]')
-    # img.screenshot(path="screenshot.png")
-    box = img.bounding_box()
-
-    captcha_img = Image.open("screenshot.png")
-    pixel_array = captcha_img.load()
-    (cx,cy) = captcha_img.size
-    (darkestx,darkesty) = (0,0)
-
-    darkest_value = 765
-    for y in range(5,cy-5):
-      for x in range(5,cx-5):
-        (r,g,b) = pixel_array[x,y]
-        if (r+g+b) < darkest_value:
-          (darkestx,darkesty) = (x,y)
-          darkest_value = (r+g+b)
-
-    x = box["x"] + darkestx - 5
-    y = box["y"] + darkesty - 5
-
-    print(f'Region found; making haggle at {x}, {y}')
-    page.mouse.click(x, y)
-
-    if(page.locator(':has-text("I accept your offer")').is_visible() is False):
-      print('Just missed it!')
-      return False
-    
-    # Wait for any haggle operation to complete
-    # before going back to stamp shop
-    wait_for_haggle = 2000
-    page.wait_for_timeout(wait_for_haggle)
-    return True
+    return buy_stamp(page)
   else:
     print('Stamp not found')
     return False
+  
+def buy_stamp(page: Page) -> bool:
+
+  # Handle stamp has been bought already
+  sold_out = page.locator(':has-text("SOLD OUT")').is_visible()
+  if(sold_out):
+    print('Stamp is sold out')
+    return False
+  
+  # This is the unreliable part
+  # so lets catch exception
+  try:
+    page.locator('[name="current_offer"]').fill(f'{price}')
+  except PlaywrightTimeoutError as e:
+    print(f'Failed to fill haggle offer with exception {e}')
+    return False
+
+  # current_offer_available = page.locator('[name="current_offer"]').is_visible()
+  # if(current_offer_available is False):
+  #   print('Current offer input is NOT available')
+  #   return False
+
+  # print('Current offer input is available')
+
+  # try:
+  #   page.locator('[name="current_offer"]', timeout=1000)
+  # except PlaywrightTimeoutError:
+  #   return False
+
+  print('Finding CAPTCHA region')
+
+  page.wait_for_function('() => document.querySelector(\'input[type="image"]\').width > 100')
+  img = page.locator('input[type="image"]')
+  img.screenshot(path="screenshot.png")
+  
+  # # Definately have to wait some time for the image to load
+  # page.wait_for_timeout(1000)
+  # i = page.wait_for_selector('input[type="image"]')
+  # img = page.locator('input[type="image"]')
+  # img.screenshot(path="screenshot.png")
+  box = img.bounding_box()
+
+  captcha_img = Image.open("screenshot.png")
+  pixel_array = captcha_img.load()
+  (cx,cy) = captcha_img.size
+  (darkestx,darkesty) = (0,0)
+
+  darkest_value = 765
+  for y in range(5,cy-5):
+    for x in range(5,cx-5):
+      (r,g,b) = pixel_array[x,y]
+      if (r+g+b) < darkest_value:
+        (darkestx,darkesty) = (x,y)
+        darkest_value = (r+g+b)
+
+  x = box["x"] + darkestx - 5
+  y = box["y"] + darkesty - 5
+
+  print(f'Region found; making haggle at {x}, {y}')
+  page.mouse.click(x, y)
+
+  if(page.locator(':has-text("I accept your offer")').is_visible() is False):
+    print('Just missed it!')
+    return False
+  
+  # Wait for any haggle operation to complete
+  # before going back to stamp shop
+  wait_for_haggle = 2000
+  page.wait_for_timeout(wait_for_haggle)
+  return True
