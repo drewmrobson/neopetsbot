@@ -71,12 +71,12 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     # Click on pop-up confirm
     page.locator("#confirm-link").click()
 
-    return buy_stamp(page)
+    return buy_stamp(page, price)
   else:
     print('Stamp not found')
     return False
   
-def buy_stamp(page: Page) -> bool:
+def buy_stamp(page: Page, price: str) -> bool:
 
   # Handle stamp has been bought already
   sold_out = page.locator(':has-text("SOLD OUT")').is_visible()
