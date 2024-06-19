@@ -71,50 +71,41 @@ def find_stamp(page: Page, stamp: str, price: str) -> bool:
     # Click on pop-up confirm
     page.locator("#confirm-link").click()
 
-    return buy_stamp(page, price)
+    try:
+      return buy_stamp(page, price)
+    except Exception as e:
+      print(f'{e}')
+      return False   
   else:
     print('Stamp not found')
     return False
   
 def buy_stamp(page: Page, price: str) -> bool:
 
-  # Handle stamp has been bought already
-  sold_out = page.locator(':has-text("SOLD OUT")').is_visible()
-  if(sold_out):
-    print('Stamp is sold out')
-    return False
-  
-  # This is the unreliable part
-  # so lets catch exception
+  # # Handle stamp has been bought already
+  # try:
+  #   sold_out_locator = page.locator(':has-text("SOLD OUT")')
+  #   expect(sold_out_locator).toBeVisible()
+  # except Exception as e:
+  #   print('Stamp is sold out')
+  #   print(f'{e}')
+  #   return False
+
+  # Provide offer to shop
+  current_offer_locator = page.locator('[name="current_offer"]')
   try:
-    page.locator('[name="current_offer"]').fill(f'{price}')
+    expect(current_offer_locator).toBeVisible()
+    current_offer_locator.fill(f'{price}')
   except PlaywrightTimeoutError as e:
     print(f'Failed to fill haggle offer with exception {e}')
     return False
 
-  # current_offer_available = page.locator('[name="current_offer"]').is_visible()
-  # if(current_offer_available is False):
-  #   print('Current offer input is NOT available')
-  #   return False
-
-  # print('Current offer input is available')
-
-  # try:
-  #   page.locator('[name="current_offer"]', timeout=1000)
-  # except PlaywrightTimeoutError:
-  #   return False
-
   print('Finding CAPTCHA region')
 
+  # Wait for CAPTCHA image to load separately
   page.wait_for_function('() => document.querySelector(\'input[type="image"]\').width > 100')
   img = page.locator('input[type="image"]')
-  img.screenshot(path="screenshot.png")
-  
-  # # Definately have to wait some time for the image to load
-  # page.wait_for_timeout(1000)
-  # i = page.wait_for_selector('input[type="image"]')
-  # img = page.locator('input[type="image"]')
-  # img.screenshot(path="screenshot.png")
+  img.screenshot(path="screenshot.png") 
   box = img.bounding_box()
 
   captcha_img = Image.open("screenshot.png")
@@ -136,12 +127,15 @@ def buy_stamp(page: Page, price: str) -> bool:
   print(f'Region found; making haggle at {x}, {y}')
   page.mouse.click(x, y)
 
-  if(page.locator(':has-text("I accept your offer")').is_visible() is False):
+  # Wait for offer acceptance text element to be present
+  accept_offer_locator = page.locator(':has-text("I accept your offer")')
+  try:
+    expect(accept_offer_locator).toBeVisible()
+    # Wait for any haggle operation to complete
+    # before going back to stamp shop
+    wait_for_haggle = 3000
+    page.wait_for_timeout(wait_for_haggle)
+    return True
+  except PlaywrightTimeoutError as e:
     print('Just missed it!')
     return False
-  
-  # Wait for any haggle operation to complete
-  # before going back to stamp shop
-  wait_for_haggle = 2000
-  page.wait_for_timeout(wait_for_haggle)
-  return True
