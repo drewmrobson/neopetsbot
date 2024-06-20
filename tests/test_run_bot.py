@@ -94,7 +94,7 @@ def buy_stamp(page: Page, price: str) -> bool:
   # Provide offer to shop
   current_offer_locator = page.locator('[name="current_offer"]')
   try:
-    expect(current_offer_locator).toBeVisible()
+    expect(current_offer_locator).to_be_visible()
     current_offer_locator.fill(f'{price}')
   except PlaywrightTimeoutError as e:
     print(f'Failed to fill haggle offer with exception {e}')
@@ -130,7 +130,7 @@ def buy_stamp(page: Page, price: str) -> bool:
   # Wait for offer acceptance text element to be present
   accept_offer_locator = page.locator(':has-text("I accept your offer")')
   try:
-    expect(accept_offer_locator).toBeVisible()
+    expect(accept_offer_locator).to_be_visible()
     # Wait for any haggle operation to complete
     # before going back to stamp shop
     wait_for_haggle = 3000
