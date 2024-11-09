@@ -14,7 +14,7 @@ Her solution? Ask me to write a bot to compete in the Stamps Shop. I've built a 
 
 ## Dependencies
 
-Choco is used to initially install Python. `pip` is then used to install the Python dependencies as below. This solution uses `pytest` as the execution handler, and `playwright` as the browser automation tool.
+`choco` is used to initially install Python. `pip` is then used to install the Python dependencies as below. This solution uses `pytest` as the execution handler, and `playwright` as the browser automation tool.
 
 ```
 choco install python312 -y
